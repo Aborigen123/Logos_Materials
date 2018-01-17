@@ -1,0 +1,141 @@
+DROP DATABASE IF EXISTS online_course;  
+CREATE DATABASE online_course DEFAULT CHARACTER SET utf8;
+USE online_course;
+
+#SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS teacher;
+
+CREATE TABLE teacher (
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(45) NOT NULL UNIQUE,
+    teacher_password VARCHAR(45) NOT NULL,
+    creating_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    teacher_details_id INT
+);
+
+DROP TABLE IF EXISTS teacher_details;
+
+CREATE TABLE teacher_details(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	first_name VARCHAR(45) NOT NULL,
+    last_name VARCHAR(45) NOT NULL,
+    description TEXT DEFAULT NULL
+#    image_url VARCHAR(100) DEFAULT NULL
+);
+
+DROP TABLE IF EXISTS course;
+
+CREATE TABLE course(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(100) NOT NULL UNIQUE,
+    price decimal(6, 2) NOT NULL, # to 9999.99
+    description TEXT NOT NULL,
+    course_teacher_id INT
+);
+
+DROP TABLE IF EXISTS student;
+
+CREATE TABLE student(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(45) NOT NULL, 
+    last_name VARCHAR(45) NOT NULL,
+    creating_date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS course_student;
+
+CREATE TABLE course_student(
+	course_id INT NOT NULL,
+    student_id INT NOT NULL,
+    PRIMARY KEY(course_id, student_id)
+);
+
+/* ONE - TO - ONE*/
+ALTER TABLE teacher ADD CONSTRAINT FK_teacher_detail_id 
+FOREIGN KEY(teacher_details_id) REFERENCES teacher_details(id)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+/* MANY - TO - ONE */
+ALTER TABLE course ADD CONSTRAINT FK_course_teacher_id 
+FOREIGN KEY(course_teacher_id) REFERENCES teacher(id)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE course_student ADD CONSTRAINT FK_course
+FOREIGN KEY(course_id) REFERENCES course(id);
+
+ALTER TABLE course_student ADD CONSTRAINT FK_student
+FOREIGN KEY(student_id) REFERENCES student(id);
+
+#SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO teacher_details(first_name, last_name, description) VALUES
+("Paulo", "Dichone", "Hi! I'm Paulo. I have a degree in Computer Science from Whitworth University, 
+and I am a programming geek and very proud of it!"), 
+("Maximilian", "Schwarzmüller", "Starting out at the age of 13 I never stopped learning new programming skills and languages. 
+Early I started creating websites for friends and just for fun as well. "), 
+("Jose", "Marcial", "Jose Marcial Portilla has a BS and MS in Mechanical Engineering from Santa Clara University 
+and years of experience as a professional instructor and trainer for Data Science and programming. ");
+
+INSERT INTO teacher(email, teacher_password, teacher_details_id) VALUES
+("jose.marcial@gmail.com", "123456", 3),
+("max@gmail.com", "123456", 2),
+("paulo@gmail.com", "123456", 1);
+
+
+INSERT INTO course(title, price, description, course_teacher_id) VALUES
+(
+"Java 9 Masterclass - Beginner to Expert", 
+200.0, 
+"Learn Java 8 and Java 9 - Building Java FX, 
+Springboot and Vaadin Java Applications. 
+Includes Advanced Java Concepts",
+3
+),
+(
+"Angular 5 (formerly Angular 2) - The Complete Guide", 
+190.0, 
+"Master Angular (Angular 2+, incl. Angular 5) and build awesome, 
+reactive web apps with the successor of Angular.js",
+2
+),
+(
+"Complete Python Bootcamp: Go from zero to hero in Python", 
+195.0, 
+"Learn Python like a Professional! Start from the basics 
+and go all the way to creating your own applications and games!",
+1
+);
+
+INSERT INTO student(first_name, last_name) VALUES
+("John", "Genetti"),
+("John", "Birnbaum"),
+("Tim", "Kyle"),
+("Tim", "Lacy"),
+("Bob", "Botfield"),
+("Bob", "Shynk"),
+("Alan", "Lefkopoulou"),
+("Alan", "Vidakovic"),
+("Mohamed", "Housum"),
+("Mohamed", "Munter"),
+("Ibrahim", "Bruzzone"),
+("Ibrahim", "Bender");
+
+INSERT INTO course_student(course_id, student_id) VALUES
+(3, 4), (2, 1), (1, 9), (3, 7), (3, 2), (2, 8), (1, 1), (3, 3), (2, 5);
+
+select * from course;
+select * from course_student;
+
+select s.first_name, s.last_name, t.first_name as teacher_first, t.last_name as teacher_last, c.title, c.price 
+FROM course c
+LEFT JOIN course_student cs ON c.id = cs.course_id 
+LEFT JOIN student s ON s.id = cs.student_id
+LEFT JOIN teacher_details t ON t.id = c.id
+#GROUP BY s.first_name
+ORDER BY s.first_name;
+
+select s.*, cs.course_id, c.title from student s 
+inner join course_student cs on s.id = cs.student_id 
+inner join course c on cs.course_id=c.id
+order by s.first_name;
