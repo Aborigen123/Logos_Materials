@@ -1,0 +1,7 @@
+Documentation: https://projectlombok.org/features/all
+Donwload Jar and script to pom xml- https://mvnrepository.com/artifact/org.projectlombok/lombok
+
+In console: java -jar lombok.jar
+In the opened window select instalation folder of Eclipse and click install.
+
+Run Eclipse and by using @Getter/@Setter and etc. be happy :-)
