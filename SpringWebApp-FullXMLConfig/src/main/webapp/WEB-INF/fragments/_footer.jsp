@@ -1,0 +1,1 @@
+<span class="pull-left">Created by Zavada</span><span class="pull-right">&copy; 2018</span>
